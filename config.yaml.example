@@ -1,0 +1,43 @@
+# Email CLI Tool Configuration Example
+# Copy this file to ~/.email-cli/config.yaml and modify for your domains
+
+# Default domain to use when not specified
+default_domain: gmail.com
+
+# Domain configurations
+domains:
+  gmail.com:
+    smtp_server: smtp.gmail.com
+    smtp_port: 587
+    imap_server: imap.gmail.com
+    imap_port: 993
+    username: your-email@gmail.com
+    # Password is stored in system keyring, not here
+    use_ssl: true
+    use_tls: true
+  
+  # Example for a custom domain
+  yourdomain.com:
+    smtp_server: mail.yourdomain.com
+    smtp_port: 587
+    imap_server: mail.yourdomain.com
+    imap_port: 993
+    username: your-email@yourdomain.com
+    use_ssl: true
+    use_tls: true
+  
+  # Example for Outlook/Hotmail
+  outlook.com:
+    smtp_server: smtp-mail.outlook.com
+    smtp_port: 587
+    imap_server: outlook.office365.com
+    imap_port: 993
+    username: your-email@outlook.com
+    use_ssl: true
+    use_tls: true
+
+# Global settings
+smtp_timeout: 30
+imap_timeout: 30
+use_ssl: true
+use_tls: true
