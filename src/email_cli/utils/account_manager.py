@@ -8,9 +8,9 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from datetime import datetime
 from typing import Dict, Any, Optional, List
-from .config import ConfigManager
-from .storage import StorageManager
-from .email_engine import EmailEngine
+from ..config.config import ConfigManager
+from ..storage.storage import StorageManager
+from ..core.email_engine import EmailEngine
 from .utils import validate_email, error_exit, success_message, info_message, sanitize_input, generate_secure_token
 
 

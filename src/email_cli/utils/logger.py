@@ -4,7 +4,14 @@ import logging
 import sys
 from pathlib import Path
 from typing import Optional
-from .utils import get_config_dir
+
+
+def get_config_dir() -> Path:
+    """Get the configuration directory for the email CLI tool."""
+    home = Path.home()
+    config_dir = home / ".email-cli"
+    config_dir.mkdir(exist_ok=True)
+    return config_dir
 
 
 class EmailCLILogger:

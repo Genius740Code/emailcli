@@ -13,9 +13,9 @@ from email.mime.multipart import MIMEMultipart
 from email.header import decode_header
 from datetime import datetime
 from typing import Dict, Any, List, Optional, Tuple
-from .utils import error_exit, success_message, sanitize_input, hash_string, validate_server_address, validate_port
+from ..utils.utils import error_exit, success_message, sanitize_input, hash_string, validate_server_address, validate_port
 from .connection_pool import get_connection_pool, with_retry
-from .logger import get_logger
+from ..utils.logger import get_logger
 
 
 class EmailEngine:

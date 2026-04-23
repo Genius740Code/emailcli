@@ -4,7 +4,7 @@ import re
 import hashlib
 import secrets
 from typing import Dict, Any, List, Optional
-from .utils import error_exit, sanitize_input
+from ..utils.utils import error_exit, sanitize_input
 
 
 class SecurityValidator:

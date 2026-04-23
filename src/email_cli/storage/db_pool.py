@@ -7,7 +7,7 @@ from contextlib import contextmanager
 from typing import Dict, Any, Optional, List
 from queue import Queue, Empty
 from dataclasses import dataclass
-from .logger import get_logger
+from ..utils.logger import get_logger
 
 
 @dataclass
@@ -282,7 +282,7 @@ def get_db_pool(db_file: str = None) -> DatabasePool:
     """Get the global database pool instance."""
     global _db_pool
     if _db_pool is None:
-        from .utils import get_database_file
+        from ..utils.utils import get_database_file
         if db_file is None:
             db_file = str(get_database_file())
         

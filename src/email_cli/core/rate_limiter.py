@@ -5,7 +5,7 @@ import threading
 from collections import deque, defaultdict
 from typing import Dict, Optional, Callable
 from dataclasses import dataclass
-from .logger import get_logger
+from ..utils.logger import get_logger
 
 
 @dataclass

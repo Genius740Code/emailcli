@@ -202,6 +202,20 @@ def info_message(message: str) -> None:
     print(f"Info: {message}")
 
 
+def warning_message(message: str) -> None:
+    """Print warning message and log it."""
+    logger = get_logger()
+    logger.warning(message)
+    print(f"Warning: {message}")
+
+
+def error_message(message: str) -> None:
+    """Print error message and log it."""
+    logger = get_logger()
+    logger.error(message)
+    print(f"Error: {message}")
+
+
 def sanitize_input(input_str: str, max_length: int = 1000) -> str:
     """Enhanced input sanitization to prevent injection attacks."""
     logger = get_logger()

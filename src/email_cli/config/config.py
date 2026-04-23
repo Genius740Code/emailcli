@@ -2,8 +2,8 @@
 
 import yaml
 from pathlib import Path
-from typing import Dict, Any, Optional
-from .utils import get_config_file, error_exit, validate_domain
+from typing import Dict, Any, Optional, List
+from ..utils.utils import get_config_file, error_exit, validate_domain
 from .config_validator import ConfigValidator, validate_and_load_config
 
 
@@ -115,3 +115,50 @@ class ConfigManager:
         
         self.config['default_domain'] = domain
         self.save_config()
+    
+    def set_dns_config(self, domain: str, provider: str, credentials: Dict[str, str]) -> None:
+        """Set DNS provider configuration for a domain."""
+        if not validate_domain(domain):
+            error_exit(f"Invalid domain: {domain}")
+        
+        # Initialize dns_providers section if it doesn't exist
+        if 'dns_providers' not in self.config:
+            self.config['dns_providers'] = {}
+        
+        # Store DNS configuration (without sensitive logging)
+        self.config['dns_providers'][domain] = {
+            'provider': provider,
+            'credentials': credentials
+        }
+        
+        self.save_config()
+    
+    def get_dns_config(self, domain: str) -> Optional[Dict[str, Any]]:
+        """Get DNS provider configuration for a domain."""
+        return self.config.get('dns_providers', {}).get(domain)
+    
+    def set_provider_config(self, provider_name: str, provider_type: str, credentials: Dict[str, str]) -> None:
+        """Set email provider configuration."""
+        # Initialize email_providers section if it doesn't exist
+        if 'email_providers' not in self.config:
+            self.config['email_providers'] = {}
+        
+        # Store provider configuration
+        self.config['email_providers'][provider_name] = {
+            'type': provider_type,
+            'credentials': credentials
+        }
+        
+        self.save_config()
+    
+    def get_provider_config(self, provider_name: str) -> Optional[Dict[str, Any]]:
+        """Get email provider configuration."""
+        return self.config.get('email_providers', {}).get(provider_name)
+    
+    def list_email_providers(self) -> Dict[str, Dict[str, Any]]:
+        """List all configured email providers."""
+        return self.config.get('email_providers', {})
+    
+    def list_dns_providers(self) -> Dict[str, Dict[str, Any]]:
+        """List all configured DNS providers."""
+        return self.config.get('dns_providers', {})

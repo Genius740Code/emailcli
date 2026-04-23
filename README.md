@@ -8,12 +8,15 @@ A fast, secure CLI email tool for custom domain email management. This tool allo
 
 ## Features
 
-- **Multiple Domain Support**: Configure SMTP/IMAP settings for multiple domains
-- **Secure Credential Storage**: Uses system keyring for secure password storage
-- **Local Email Caching**: SQLite database for fast offline access
-- **Full Email Operations**: Send, receive, read, and manage emails
-- **Cross-Platform**: Works on Windows, macOS, and Linux
-- **Fast CLI Interface**: Built with Click for intuitive command structure
+- **🚀 Quick Setup Wizard**: Interactive setup with preset email providers (Gmail, Outlook, Yahoo, etc.)
+- **📧 Email Templates**: Pre-built templates for common email types (welcome, newsletter, support, etc.)
+- **📦 Bulk Account Creation**: Create multiple email accounts at once with patterns or from files
+- **🌐 Multiple Domain Support**: Configure SMTP/IMAP settings for multiple domains
+- **🔐 Secure Credential Storage**: Uses system keyring for secure password storage
+- **💾 Local Email Caching**: SQLite database for fast offline access
+- **📨 Full Email Operations**: Send, receive, read, and manage emails
+- **🖥️ Cross-Platform**: Works on Windows, macOS, and Linux
+- **⚡ Fast CLI Interface**: Built with Click for intuitive command structure
 
 ## Prerequisites
 
@@ -61,50 +64,245 @@ pip install email-cli-tool
 
 ## Quick Start
 
-### 1. Setup a Domain
+### 🚀 Option 1: Quick Setup Wizard (Recommended)
 
-First, configure your email domain with SMTP/IMAP settings:
+The easiest way to get started is with the interactive setup wizard:
 
 ```bash
-email-cli setup yourdomain.com \
-  --smtp-server smtp.yourdomain.com \
-  --smtp-port 587 \
-  --imap-server imap.yourdomain.com \
-  --imap-port 993 \
-  --username your-email@yourdomain.com
+email-cli setup-wizard --interactive
 ```
 
-You'll be prompted for your password, which will be stored securely.
+This will guide you through:
+1. Selecting your email provider (Gmail, Outlook, Yahoo, etc.)
+2. Entering your domain and credentials
+3. Testing the connection
+4. Creating your first email account
 
-### 2. Create an Email Account
+### 📧 Option 2: Quick Provider Preset Setup
+
+Or use a preset provider directly:
 
 ```bash
+# Setup Gmail
+email-cli setup-wizard --provider gmail --domain yourdomain.com --username you@yourdomain.com
+
+# Setup Outlook
+email-cli setup-wizard --provider outlook --domain yourdomain.com --username you@yourdomain.com
+```
+
+### 📦 Option 3: Bulk Email Account Creation
+
+Create multiple email accounts at once:
+
+```bash
+# Create accounts with prefix pattern
+email-cli bulk-create yourdomain.com --prefix user --count 5
+
+# Create accounts from file
+email-cli bulk-create yourdomain.com --names-file usernames.txt
+
+# Create with custom pattern
+email-cli bulk-create yourdomain.com --pattern "staff{n}" --count 10 --start-num 100
+```
+
+### 📧 Send Emails with Templates
+
+Use pre-built templates for common email types:
+
+```bash
+# List available templates
+email-cli templates
+
+# Send welcome email using template
+email-cli send-template \
+  --template welcome \
+  --from-email welcome@yourdomain.com \
+  --to newuser@example.com \
+  --interactive
+
+# Send newsletter with custom variables
+email-cli send-template \
+  --template newsletter \
+  --from-email news@yourdomain.com \
+  --to subscriber@example.com \
+  --vars '{"name":"John","newsletter_title":"Monthly Update","date":"2024-01-15"}'
+```
+
+### 📨 Traditional Email Operations
+
+```bash
+# Create a single email account
 email-cli create custom-email@yourdomain.com
-```
 
-### 3. Send an Email
-
-```bash
+# Send a custom email
 email-cli send \
   --from-email custom-email@yourdomain.com \
   --to recipient@example.com \
   --subject "Test Email" \
   --body "This is a test email from the CLI tool!"
-```
 
-### 4. View Inbox
-
-```bash
+# View inbox
 email-cli inbox --email custom-email@yourdomain.com
-```
 
-### 5. Read an Email
-
-```bash
+# Read an email
 email-cli read 123
 ```
 
 ## Command Reference
+
+### 🚀 Quick Setup Commands
+
+#### `email-cli setup-wizard`
+Interactive setup wizard for quick domain configuration.
+
+**Options:**
+- `--interactive`: Run interactive setup wizard
+- `--provider`: Use preset provider (gmail, outlook, yahoo, icloud, godaddy, bluehost, siteground, custom)
+- `--domain`: Domain name to configure
+- `--username`: Email username
+- `--password`: Email password (will prompt if not provided)
+
+**Examples:**
+```bash
+# Interactive wizard
+email-cli setup-wizard --interactive
+
+# Quick Gmail setup
+email-cli setup-wizard --provider gmail --domain yourdomain.com --username you@yourdomain.com
+
+# Quick Outlook setup
+email-cli setup-wizard --provider outlook --domain yourdomain.com --username you@yourdomain.com
+```
+
+### 📦 Bulk Operations
+
+#### `email-cli bulk-create <domain>`
+Create multiple email accounts for a domain.
+
+**Options:**
+- `--prefix`: Username prefix (e.g., "info", "support", "admin")
+- `--count`: Number of accounts to create
+- `--names-file`: File containing usernames (one per line)
+- `--pattern`: Username pattern with {n} placeholder (e.g., "user{n}")
+- `--start-num`: Starting number for pattern (default: 1)
+- `--provider`: Email provider for account creation
+- `--no-dns`: Skip DNS setup
+- `--dry-run`: Show what would be created without creating
+
+**Examples:**
+```bash
+# Create numbered accounts
+email-cli bulk-create yourdomain.com --prefix user --count 5
+
+# Create from file
+email-cli bulk-create yourdomain.com --names-file usernames.txt
+
+# Create with custom pattern
+email-cli bulk-create yourdomain.com --pattern "staff{n}" --count 10 --start-num 100
+
+# Dry run to preview
+email-cli bulk-create yourdomain.com --prefix admin --count 3 --dry-run
+```
+
+### 📧 Template Commands
+
+#### `email-cli send-template`
+Send an email using a template.
+
+**Options:**
+- `--template`: Email template to use
+- `--from-email`: From email address (required)
+- `--to`: To email address (required)
+- `--subject`: Email subject (overrides template)
+- `--body`: Email body (overrides template)
+- `--cc`: CC email addresses (comma-separated)
+- `--bcc`: BCC email addresses (comma-separated)
+- `--html`: HTML body (alternative to text body)
+- `--vars`: Template variables as JSON string
+- `--interactive`: Interactive template filling
+
+**Examples:**
+```bash
+# Send welcome email interactively
+email-cli send-template --template welcome --from-email welcome@yourdomain.com --to user@example.com --interactive
+
+# Send with JSON variables
+email-cli send-template --template newsletter --from-email news@yourdomain.com --to user@example.com --vars '{"name":"John","date":"2024-01-15"}'
+
+# Override template subject
+email-cli send-template --template support --from-email support@yourdomain.com --to user@example.com --subject "Your ticket #12345"
+```
+
+#### `email-cli templates`
+List all available email templates.
+
+#### `email-cli template-info <template_name>`
+Show detailed information about a template.
+
+**Example:**
+```bash
+email-cli template-info welcome
+```
+
+### 🔍 Email Validation Commands
+
+#### `email-cli validate-email <email>`
+Validate an email address with advanced checks.
+
+**Options:**
+- `--smtp-check`: Include SMTP validation (slower)
+- `--json`: Output results as JSON
+
+**Examples:**
+```bash
+# Basic validation
+email-cli validate-email user@example.com
+
+# Full validation with SMTP check
+email-cli validate-email user@example.com --smtp-check
+
+# JSON output
+email-cli validate-email user@example.com --json
+```
+
+#### `email-cli validate-domain <domain>`
+Validate a domain and check DNS records.
+
+**Options:**
+- `--json`: Output results as JSON
+
+**Example:**
+```bash
+email-cli validate-domain example.com
+```
+
+#### `email-cli validate-emails <emails_file>`
+Validate multiple emails from a file.
+
+**Options:**
+- `--smtp-check`: Include SMTP validation (slower)
+- `--json`: Output results as JSON
+- `--output`: Save results to file
+
+**Example:**
+```bash
+# Validate emails from file
+email-cli validate-emails emails.txt
+
+# Full validation with output
+email-cli validate-emails emails.txt --smtp-check --output results.json
+```
+
+#### `email-cli check-deliverability <email>`
+Check email deliverability and risk level.
+
+**Options:**
+- `--json`: Output results as JSON
+
+**Example:**
+```bash
+email-cli check-deliverability user@example.com
+```
 
 ### Domain Management
 
@@ -213,22 +411,85 @@ smtp_timeout: 30
 imap_timeout: 30
 ```
 
+## 📧 Email Templates
+
+The Email CLI includes pre-built templates for common email types:
+
+### Available Templates
+
+| Template | Purpose | Variables |
+|----------|---------|-----------|
+| **welcome** | Welcome new users | `name`, `company_name`, `custom_message`, `sender_name` |
+| **newsletter** | Send newsletters | `name`, `newsletter_title`, `date`, `newsletter_content`, `website_url`, `unsubscribe_url`, `company_name` |
+| **announcement** | Company announcements | `name`, `announcement_title`, `announcement_message`, `affected_groups`, `contact_info`, `sender_name`, `company_name` |
+| **followup** | Follow-up emails | `name`, `original_topic`, `followup_message`, `sender_name` |
+| **support** | Customer support replies | `name`, `company_name`, `ticket_number`, `support_response`, `phone_number`, `support_agent_name` |
+| **invoice** | Invoice notifications | `name`, `invoice_number`, `company_name`, `service_description`, `amount`, `due_date`, `payment_instructions`, `sender_name` |
+
+### Template Examples
+
+#### Welcome Email Template
+```bash
+email-cli send-template \
+  --template welcome \
+  --from-email welcome@yourcompany.com \
+  --to newuser@example.com \
+  --interactive
+```
+
+This will prompt for:
+- `name`: John Doe
+- `company_name`: Your Company
+- `custom_message`: We're excited to have you join our team!
+- `sender_name`: Jane Smith
+
+#### Newsletter Template
+```bash
+email-cli send-template \
+  --template newsletter \
+  --from-email news@yourcompany.com \
+  --to subscriber@example.com \
+  --vars '{
+    "name": "Sarah",
+    "newsletter_title": "January Updates",
+    "date": "2024-01-15",
+    "newsletter_content": "This month we launched new features...",
+    "website_url": "https://yourcompany.com/jan-updates",
+    "unsubscribe_url": "https://yourcompany.com/unsubscribe",
+    "company_name": "Your Company"
+  }'
+```
+
 ## Common Email Provider Settings
 
-### Gmail
+### Supported Providers in Setup Wizard
+
+| Provider | SMTP Server | IMAP Server | Notes |
+|----------|-------------|-------------|-------|
+| **Gmail** | `smtp.gmail.com:587` | `imap.gmail.com:993` | Requires App Password for 2FA |
+| **Outlook** | `smtp-mail.outlook.com:587` | `outlook.office365.com:993` | Works with Outlook.com, Hotmail, Live.com |
+| **Yahoo** | `smtp.mail.yahoo.com:587` | `imap.mail.yahoo.com:993` | May require App Password |
+| **iCloud** | `smtp.mail.me.com:587` | `imap.mail.me.com:993` | Requires app-specific password for 2FA |
+| **GoDaddy** | `smtpout.secureserver.net:80` | `imap.secureserver.net:993` | Custom domain email |
+| **Bluehost** | `mail.bluehost.com:587` | `mail.bluehost.com:993` | Replace with actual server |
+| **SiteGround** | `smtp.siteground.com:465` | `imap.siteground.com:993` | Use assigned server |
+
+### Manual Provider Settings
+
+#### Gmail
 - SMTP: `smtp.gmail.com:587` (TLS)
 - IMAP: `imap.gmail.com:993` (SSL)
 - Requires App Password for 2FA accounts
 
-### Outlook/Hotmail
+#### Outlook/Hotmail
 - SMTP: `smtp-mail.outlook.com:587` (TLS)
 - IMAP: `outlook.office365.com:993` (SSL)
 
-### Yahoo
+#### Yahoo
 - SMTP: `smtp.mail.yahoo.com:587` (TLS)
 - IMAP: `imap.mail.yahoo.com:993` (SSL)
 
-### Custom Domain
+#### Custom Domain
 Check with your email provider for specific SMTP/IMAP settings.
 
 ## Security
@@ -436,5 +697,6 @@ MIT License - feel free to use and modify for your needs.
 - Built with [Click](https://click.palletsprojects.com/) for CLI interface
 - Uses [keyring](https://keyring.readthedocs.io/) for secure storage
 - Inspired by various email management tools
-#   e m a i l c l i  
+#   e m a i l c l i 
+ 
  

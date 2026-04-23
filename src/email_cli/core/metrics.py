@@ -8,8 +8,8 @@ from collections import defaultdict, deque
 from dataclasses import dataclass, asdict
 from typing import Dict, Any, List, Optional
 from pathlib import Path
-from .logger import get_logger
-from .utils import get_config_dir
+from ..utils.logger import get_logger
+from ..utils.utils import get_config_dir
 
 
 @dataclass

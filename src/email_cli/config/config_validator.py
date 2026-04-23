@@ -4,8 +4,8 @@ import yaml
 import jsonschema
 from typing import Dict, Any, List, Optional
 from pathlib import Path
-from .logger import get_logger
-from .utils import validate_domain, validate_port, validate_server_address, error_exit
+from ..utils.logger import get_logger
+from ..utils.utils import validate_domain, validate_port, validate_server_address, error_exit
 
 
 class ConfigValidator:

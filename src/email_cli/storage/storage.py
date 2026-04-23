@@ -8,9 +8,9 @@ from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-from .utils import get_database_file, error_exit, sanitize_input
+from ..utils.utils import get_database_file, error_exit, sanitize_input
 from .db_pool import get_db_pool, QueryBuilder
-from .logger import get_logger
+from ..utils.logger import get_logger
 
 
 class StorageManager:

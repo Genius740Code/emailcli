@@ -10,8 +10,8 @@ from contextlib import contextmanager
 from typing import Dict, Any, Optional, Callable
 from queue import Queue, Empty
 from dataclasses import dataclass
-from .logger import get_logger
-from .utils import error_exit
+from ..utils.logger import get_logger
+from ..utils.utils import error_exit
 
 
 @dataclass
