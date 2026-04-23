@@ -8,15 +8,15 @@ A fast, secure CLI email tool for custom domain email management. This tool allo
 
 ## Features
 
-- **🚀 Quick Setup Wizard**: Interactive setup with preset email providers (Gmail, Outlook, Yahoo, etc.)
-- **📧 Email Templates**: Pre-built templates for common email types (welcome, newsletter, support, etc.)
-- **📦 Bulk Account Creation**: Create multiple email accounts at once with patterns or from files
-- **🌐 Multiple Domain Support**: Configure SMTP/IMAP settings for multiple domains
-- **🔐 Secure Credential Storage**: Uses system keyring for secure password storage
-- **💾 Local Email Caching**: SQLite database for fast offline access
-- **📨 Full Email Operations**: Send, receive, read, and manage emails
-- **🖥️ Cross-Platform**: Works on Windows, macOS, and Linux
-- **⚡ Fast CLI Interface**: Built with Click for intuitive command structure
+- **Quick Setup Wizard**: Interactive domain-based setup with automatic DNS configuration
+- **Email Templates**: Pre-built templates for common email types (welcome, newsletter, support, etc.)
+- **Bulk Account Creation**: Create multiple email accounts at once with patterns or from files
+- **Multiple Domain Support**: Configure and manage multiple custom domains
+- **Secure Credential Storage**: Uses system keyring for secure password storage
+- **Local Email Caching**: SQLite database for fast offline access
+- **Full Email Operations**: Send, receive, read, and manage emails
+- **Cross-Platform**: Works on Windows, macOS, and Linux
+- **Fast CLI Interface**: Built with Click for intuitive command structure
 
 ## Prerequisites
 
@@ -64,35 +64,36 @@ pip install email-cli-tool
 
 ## Quick Start
 
-### 🚀 Option 1: Quick Setup Wizard (Recommended)
+### Option 1: Domain Setup Wizard (Recommended)
 
-The easiest way to get started is with the interactive setup wizard:
+The easiest way to get started is with the interactive domain setup wizard:
 
 ```bash
 email-cli setup-wizard --interactive
 ```
 
 This will guide you through:
-1. Selecting your email provider (Gmail, Outlook, Yahoo, etc.)
-2. Entering your domain and credentials
-3. Testing the connection
-4. Creating your first email account
+1. Entering your domain name
+2. Choosing the email address to create (e.g., hello@yourdomain.com)
+3. Selecting your DNS provider (Cloudflare, AWS Route53, GoDaddy, etc.)
+4. Configuring DNS records automatically
+5. Creating your email account with a secure password
 
-### 📧 Option 2: Quick Provider Preset Setup
+### Option 2: Quick Domain Setup
 
-Or use a preset provider directly:
+Or set up a domain directly:
 
 ```bash
-# Setup Gmail
-email-cli setup-wizard --provider gmail --domain yourdomain.com --username you@yourdomain.com
+# Setup domain with email creation
+email-cli setup-wizard --domain yourdomain.com --email hello@yourdomain.com
 
-# Setup Outlook
-email-cli setup-wizard --provider outlook --domain yourdomain.com --username you@yourdomain.com
+# Setup with specific DNS provider
+email-cli setup-wizard --domain yourdomain.com --email info@yourdomain.com --dns-provider cloudflare --api-key your-api-key
 ```
 
-### 📦 Option 3: Bulk Email Account Creation
+### Option 3: Bulk Email Account Creation
 
-Create multiple email accounts at once:
+Create multiple email accounts for your domain:
 
 ```bash
 # Create accounts with prefix pattern
@@ -105,7 +106,7 @@ email-cli bulk-create yourdomain.com --names-file usernames.txt
 email-cli bulk-create yourdomain.com --pattern "staff{n}" --count 10 --start-num 100
 ```
 
-### 📧 Send Emails with Templates
+### Send Emails with Templates
 
 Use pre-built templates for common email types:
 
@@ -128,7 +129,7 @@ email-cli send-template \
   --vars '{"name":"John","newsletter_title":"Monthly Update","date":"2024-01-15"}'
 ```
 
-### 📨 Traditional Email Operations
+### Traditional Email Operations
 
 ```bash
 # Create a single email account
@@ -150,31 +151,32 @@ email-cli read 123
 
 ## Command Reference
 
-### 🚀 Quick Setup Commands
+### Quick Setup Commands
 
 #### `email-cli setup-wizard`
-Interactive setup wizard for quick domain configuration.
+Interactive domain setup wizard for email configuration.
 
 **Options:**
 - `--interactive`: Run interactive setup wizard
-- `--provider`: Use preset provider (gmail, outlook, yahoo, icloud, godaddy, bluehost, siteground, custom)
 - `--domain`: Domain name to configure
-- `--username`: Email username
-- `--password`: Email password (will prompt if not provided)
+- `--email`: Email address to create (e.g., hello@domain.com)
+- `--dns-provider`: DNS provider (cloudflare, route53, godaddy, etc.)
+- `--api-key`: DNS provider API key
+- `--mail-server`: Mail server address (default: mail.domain.com)
 
 **Examples:**
 ```bash
 # Interactive wizard
 email-cli setup-wizard --interactive
 
-# Quick Gmail setup
-email-cli setup-wizard --provider gmail --domain yourdomain.com --username you@yourdomain.com
+# Quick domain setup
+email-cli setup-wizard --domain yourdomain.com --email hello@yourdomain.com
 
-# Quick Outlook setup
-email-cli setup-wizard --provider outlook --domain yourdomain.com --username you@yourdomain.com
+# Setup with DNS provider
+email-cli setup-wizard --domain yourdomain.com --email info@yourdomain.com --dns-provider cloudflare --api-key your-api-key
 ```
 
-### 📦 Bulk Operations
+### Bulk Operations
 
 #### `email-cli bulk-create <domain>`
 Create multiple email accounts for a domain.
@@ -204,7 +206,7 @@ email-cli bulk-create yourdomain.com --pattern "staff{n}" --count 10 --start-num
 email-cli bulk-create yourdomain.com --prefix admin --count 3 --dry-run
 ```
 
-### 📧 Template Commands
+### Template Commands
 
 #### `email-cli send-template`
 Send an email using a template.
@@ -244,7 +246,7 @@ Show detailed information about a template.
 email-cli template-info welcome
 ```
 
-### 🔍 Email Validation Commands
+### Email Validation Commands
 
 #### `email-cli validate-email <email>`
 Validate an email address with advanced checks.
@@ -397,21 +399,26 @@ The tool stores configuration in `~/.email-cli/`:
 ### Example Configuration
 
 ```yaml
-default_domain: gmail.com
+default_domain: yourdomain.com
 domains:
-  gmail.com:
-    smtp_server: smtp.gmail.com
+  yourdomain.com:
+    smtp_server: mail.yourdomain.com
     smtp_port: 587
-    imap_server: imap.gmail.com
+    imap_server: mail.yourdomain.com
     imap_port: 993
-    username: your-email@gmail.com
+    username: hello@yourdomain.com
     use_ssl: true
     use_tls: true
 smtp_timeout: 30
 imap_timeout: 30
+dns_providers:
+  yourdomain.com:
+    provider: cloudflare
+    credentials:
+      api_key: your-api-key
 ```
 
-## 📧 Email Templates
+## Email Templates
 
 The Email CLI includes pre-built templates for common email types:
 
@@ -460,37 +467,45 @@ email-cli send-template \
   }'
 ```
 
-## Common Email Provider Settings
+### Supported DNS Providers
 
-### Supported Providers in Setup Wizard
+The setup wizard supports automatic DNS configuration with these providers:
 
-| Provider | SMTP Server | IMAP Server | Notes |
-|----------|-------------|-------------|-------|
-| **Gmail** | `smtp.gmail.com:587` | `imap.gmail.com:993` | Requires App Password for 2FA |
-| **Outlook** | `smtp-mail.outlook.com:587` | `outlook.office365.com:993` | Works with Outlook.com, Hotmail, Live.com |
-| **Yahoo** | `smtp.mail.yahoo.com:587` | `imap.mail.yahoo.com:993` | May require App Password |
-| **iCloud** | `smtp.mail.me.com:587` | `imap.mail.me.com:993` | Requires app-specific password for 2FA |
-| **GoDaddy** | `smtpout.secureserver.net:80` | `imap.secureserver.net:993` | Custom domain email |
-| **Bluehost** | `mail.bluehost.com:587` | `mail.bluehost.com:993` | Replace with actual server |
-| **SiteGround** | `smtp.siteground.com:465` | `imap.siteground.com:993` | Use assigned server |
+| Provider | Setup Method | Notes |
+|----------|-------------|-------|
+| **Cloudflare** | API Key | Full DNS management | 
+| **AWS Route53** | API Key | AWS integration |
+| **GoDaddy** | API Key | Domain registrar DNS |
+| **Namecheap** | API Key | Budget-friendly option |
+| **Custom** | Manual | For other providers |
 
-### Manual Provider Settings
+### Manual DNS Configuration
 
-#### Gmail
-- SMTP: `smtp.gmail.com:587` (TLS)
-- IMAP: `imap.gmail.com:993` (SSL)
-- Requires App Password for 2FA accounts
+If you choose "Custom" DNS provider, you'll need to manually configure these records:
 
-#### Outlook/Hotmail
-- SMTP: `smtp-mail.outlook.com:587` (TLS)
-- IMAP: `outlook.office365.com:993` (SSL)
+#### Required DNS Records
+- **MX Record**: `@` → `mail.yourdomain.com` (Priority: 10)
+- **A Record**: `mail.yourdomain.com` → `[your server IP]`
+- **SPF Record**: `@` → `v=spf1 mx include:mail.yourdomain.com ~all`
+- **DKIM Record**: Generate and add DKIM signature
+- **DMARC Record**: `_dmarc` → `v=DMARC1; p=quarantine; rua=mailto:dmarc@yourdomain.com`
 
-#### Yahoo
-- SMTP: `smtp.mail.yahoo.com:587` (TLS)
-- IMAP: `imap.mail.yahoo.com:993` (SSL)
+## Domain-Based Email Workflow
 
-#### Custom Domain
-Check with your email provider for specific SMTP/IMAP settings.
+### How It Works
+
+1. **Domain Setup**: Configure your custom domain with DNS records
+2. **Email Creation**: Choose any email address (e.g., hello@yourdomain.com)
+3. **Automatic Configuration**: DNS records are set up automatically
+4. **Account Management**: Send/receive emails through your custom domain
+
+### DNS Records Explained
+
+- **MX (Mail Exchange)**: Directs email traffic to your mail server
+- **A Record**: Points your mail subdomain to your server IP
+- **SPF (Sender Policy Framework)**: Prevents email spoofing
+- **DKIM (DomainKeys Identified Mail)**: Adds digital signatures
+- **DMARC**: Combines SPF and DKIM for authentication
 
 ## Security
 

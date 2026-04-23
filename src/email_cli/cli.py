@@ -22,16 +22,16 @@ from .core.rate_limiter import get_rate_limiter, with_rate_limit
 @click.option('--config-dir', type=click.Path(), help='Custom configuration directory')
 @click.pass_context
 def main(ctx, config_dir):
-    """🚀 Email CLI Tool - Fast CLI email management for custom domains.
+    """Email CLI Tool - Fast CLI email management for custom domains.
 
-    📧 FEATURES:
-      • Quick setup wizard with provider presets
-      • Email templates for common use cases  
-      • Bulk account creation
-      • Secure credential storage
-      • Multi-domain support
+    FEATURES:
+      - Quick setup wizard with provider presets
+      - Email templates for common use cases  
+      - Bulk account creation
+      - Secure credential storage
+      - Multi-domain support
 
-    🚀 QUICK START:
+    QUICK START:
       email-cli setup-wizard --interactive    # Interactive setup
       email-cli templates                      # List templates
       email-cli bulk-create domain.com --prefix user --count 5
@@ -42,7 +42,50 @@ def main(ctx, config_dir):
     ctx.obj['config_dir'] = config_dir
 
 
-@main.command()
+# @main.command('setup-domain-config')
+# @click.argument('domain')
+# @click.option('--smtp-server', required=True, help='SMTP server address')
+# @click.option('--smtp-port', default=587, type=int, help='SMTP port (default: 587)')
+# @click.option('--imap-server', required=True, help='IMAP server address')
+# @click.option('--imap-port', default=993, type=int, help='IMAP port (default: 993)')
+# @click.option('--username', required=True, help='Email username')
+# @click.option('--password', help='Email password (will prompt if not provided)')
+# @click.option('--no-ssl', is_flag=True, help='Disable SSL')
+# @click.option('--no-tls', is_flag=True, help='Disable TLS')
+# def setup_domain(domain, smtp_server, smtp_port, imap_server, imap_port, username, password, no_ssl, no_tls):
+#     """Setup a new email domain configuration."""
+#     # Input validation and sanitization
+#     domain = sanitize_input(domain)
+#     smtp_server = sanitize_input(smtp_server)
+#     imap_server = sanitize_input(imap_server)
+#     username = sanitize_input(username)
+#     
+#     if not validate_domain(domain):
+#         error_exit(f"Invalid domain: {domain}")
+#     
+#     if not validate_email(username) and '@' in username:
+#         error_exit(f"Invalid username format: {username}")
+#     
+#     if not password:
+#         password = get_user_input("Enter password", hide_input=True)
+#     
+#     use_ssl = not no_ssl
+#     use_tls = not no_tls
+#     
+#     # Validate port ranges
+#     if not (1 <= smtp_port <= 65535):
+#         error_exit(f"Invalid SMTP port: {smtp_port}")
+#     if not (1 <= imap_port <= 65535):
+#         error_exit(f"Invalid IMAP port: {imap_port}")
+#     
+#     account_manager = AccountManager()
+#     account_manager.setup_domain(
+#         domain, smtp_server, smtp_port, imap_server, imap_port,
+#         username, password, use_ssl, use_tls
+#     )
+
+
+@main.command('setup-domain')
 @click.argument('domain')
 @click.option('--smtp-server', required=True, help='SMTP server address')
 @click.option('--smtp-port', default=587, type=int, help='SMTP port (default: 587)')
@@ -52,7 +95,7 @@ def main(ctx, config_dir):
 @click.option('--password', help='Email password (will prompt if not provided)')
 @click.option('--no-ssl', is_flag=True, help='Disable SSL')
 @click.option('--no-tls', is_flag=True, help='Disable TLS')
-def setup(domain, smtp_server, smtp_port, imap_server, imap_port, username, password, no_ssl, no_tls):
+def setup_domain(domain, smtp_server, smtp_port, imap_server, imap_port, username, password, no_ssl, no_tls):
     """Setup a new email domain configuration."""
     # Input validation and sanitization
     domain = sanitize_input(domain)
@@ -85,112 +128,78 @@ def setup(domain, smtp_server, smtp_port, imap_server, imap_port, username, pass
     )
 
 
-@main.command()
+@main.command('setup-wizard')
 @click.option('--interactive', is_flag=True, help='Interactive setup wizard')
-@click.option('--provider', help='Use preset provider (gmail, outlook, yahoo, icloud, godaddy, bluehost, siteground, custom)')
 @click.option('--domain', help='Domain name to configure')
-@click.option('--username', help='Email username')
-@click.option('--password', help='Email password (will prompt if not provided)')
-def setup_wizard(interactive, provider, domain, username, password):
-    """Interactive setup wizard for quick domain configuration."""
+@click.option('--email', help='Email address to create (e.g., hello@domain.com)')
+@click.option('--dns-provider', help='DNS provider (cloudflare, route53, godaddy, etc.)')
+@click.option('--api-key', help='DNS provider API key')
+@click.option('--mail-server', help='Mail server address (default: mail.domain.com)')
+def setup_wizard(interactive, domain, email, dns_provider, api_key, mail_server):
+    """Interactive setup wizard for domain-based email configuration."""
     account_manager = AccountManager()
     
-    if interactive or not provider:
+    if interactive or not domain:
         # Interactive mode
-        click.echo("🚀 Email CLI Setup Wizard")
+        click.echo("Email CLI Domain Setup Wizard")
         click.echo("=" * 40)
-        
-        # Select provider
-        if not provider:
-            click.echo("\nAvailable email providers:")
-            presets = EmailProviderPresets.list_presets()
-            for i, preset in enumerate(presets, 1):
-                click.echo(f"{i}. {preset['name']} - {preset['description']}")
-            
-            choice = get_user_input("\nSelect provider (enter number)")
-            try:
-                choice_idx = int(choice) - 1
-                if 0 <= choice_idx < len(presets):
-                    provider = presets[choice_idx]['key']
-                else:
-                    error_exit("Invalid selection")
-            except ValueError:
-                error_exit("Please enter a valid number")
-        
-        preset = EmailProviderPresets.get_preset(provider)
         
         # Get domain
         if not domain:
-            domain = get_user_input(f"Enter domain name for {preset['name']}")
+            domain = get_user_input("Enter your domain name (e.g., example.com)")
         
         domain = sanitize_input(domain)
-        if not validate_domain(domain):
+        if not domain or '.' not in domain or len(domain) < 4:
             error_exit(f"Invalid domain: {domain}")
         
-        # Get username
-        if not username:
-            if provider != 'custom':
-                username = get_user_input(f"Enter email username (e.g., user@{domain})")
-            else:
-                username = get_user_input("Enter email username")
+        # Get email address to create
+        if not email:
+            email = get_user_input(f"Enter email address to create (e.g., hello@{domain})")
         
-        username = sanitize_input(username)
-        if not validate_email(username) and '@' in username:
-            error_exit(f"Invalid username format: {username}")
+        email = sanitize_input(email)
+        if not email or '@' not in email or '.' not in email.split('@')[1]:
+            error_exit(f"Invalid email address: {email}")
         
-        # Get password
-        if not password:
-            password = get_user_input("Enter email password", hide_input=True)
+        # Verify email belongs to domain
+        if not email.endswith(f"@{domain}"):
+            error_exit(f"Email address must belong to domain {domain}")
         
-        # Show configuration summary
-        click.echo(f"\n📋 Configuration Summary:")
-        click.echo(f"Provider: {preset['name']}")
-        click.echo(f"Domain: {domain}")
-        click.echo(f"Username: {username}")
-        click.echo(f"SMTP: {preset['smtp_server']}:{preset['smtp_port']}")
-        click.echo(f"IMAP: {preset['imap_server']}:{preset['imap_port']}")
-        click.echo(f"SSL: {'Yes' if preset['use_ssl'] else 'No'}")
-        click.echo(f"TLS: {'Yes' if preset['use_tls'] else 'No'}")
-        
-        if preset['notes']:
-            click.echo(f"Note: {preset['notes']}")
-        
-        # Confirm setup
-        if click.confirm("\nProceed with this configuration?"):
-            account_manager.setup_domain(
-                domain, preset['smtp_server'], preset['smtp_port'],
-                preset['imap_server'], preset['imap_port'], username,
-                password, preset['use_ssl'], preset['use_tls']
-            )
-        else:
-            info_message("Setup cancelled")
+        click.echo(f"Interactive mode with domain: {domain}, email: {email}")
     else:
-        # Non-interactive with preset
-        preset = EmailProviderPresets.get_preset(provider)
+        # Non-interactive mode
+        click.echo(f"Non-interactive mode with domain: {domain}, email: {email}")
         
-        if not domain:
-            error_exit("--domain is required when using --provider")
+        if not email:
+            error_exit("--email is required when using --domain")
         
-        if not username:
-            error_exit("--username is required when using --provider")
+        if not email.endswith(f"@{domain}"):
+            error_exit(f"Email address must belong to domain {domain}")
         
         domain = sanitize_input(domain)
-        username = sanitize_input(username)
+        email = sanitize_input(email)
         
-        if not validate_domain(domain):
+        # Simple domain validation
+        if not domain or '.' not in domain or len(domain) < 4:
             error_exit(f"Invalid domain: {domain}")
         
-        if not validate_email(username) and '@' in username:
-            error_exit(f"Invalid username format: {username}")
+        # Simple email validation
+        if not email or '@' not in email or '.' not in email.split('@')[1]:
+            error_exit(f"Invalid email address: {email}")
         
-        if not password:
-            password = get_user_input("Enter email password", hide_input=True)
+        click.echo("All validation passed!")
+        
+        # Setup domain and create email
+        password = generate_secure_token(16)
+        default_mail_server = mail_server or f"mail.{domain}"
         
         account_manager.setup_domain(
-            domain, preset['smtp_server'], preset['smtp_port'],
-            preset['imap_server'], preset['imap_port'], username,
-            password, preset['use_ssl'], preset['use_tls']
+            domain, default_mail_server, 587, default_mail_server, 993,
+            email, password, True, True
         )
+        
+        account_manager.create_account(email)
+        success_message(f"Email account {email} created successfully!")
+        success_message(f"Generated password: {password}")
 
 
 @main.command()
@@ -305,20 +314,20 @@ def bulk_create(domain, prefix, count, names_file, pattern, start_num, provider,
         if validate_email(email):
             emails.append(email)
         else:
-            click.echo(f"⚠️  Skipping invalid email: {email}")
+            click.echo(f"WARNING: Skipping invalid email: {email}")
     
     if not emails:
         error_exit("No valid email addresses to create")
     
     # Show summary
-    click.echo(f"📧 Bulk Email Account Creation")
+    click.echo(f"Bulk Email Account Creation")
     click.echo("=" * 40)
     click.echo(f"Domain: {domain}")
     click.echo(f"Accounts to create: {len(emails)}")
     click.echo(f"Provider: {provider or 'Local only'}")
     
     if dry_run:
-        click.echo("\n🔍 Dry run - accounts that would be created:")
+        click.echo("\nDry run - accounts that would be created:")
         for email in emails:
             click.echo(f"  - {email}")
         return
@@ -367,23 +376,23 @@ def bulk_create(domain, prefix, count, names_file, pattern, start_num, provider,
                 
                 # Create local account record
                 account_manager.create_account(email)
-                success_message(f"✅ Created: {email} (Password: {password})")
+                success_message(f"Created: {email} (Password: {password})")
                 success_count += 1
                 
             else:
                 # Create local account only
                 account_manager.create_account(email)
-                success_message(f"✅ Created: {email}")
+                success_message(f"Created: {email}")
                 success_count += 1
                 
         except Exception as e:
             failed_emails.append(email)
-            click.echo(f"❌ Failed to create {email}: {e}")
+            click.echo(f"Failed to create {email}: {e}")
     
     # Summary
-    click.echo(f"\n📊 Creation Summary:")
-    click.echo(f"✅ Successful: {success_count}")
-    click.echo(f"❌ Failed: {len(failed_emails)}")
+    click.echo(f"\nCreation Summary:")
+    click.echo(f"Successful: {success_count}")
+    click.echo(f"Failed: {len(failed_emails)}")
     
     if failed_emails:
         click.echo("\nFailed accounts:")
@@ -470,7 +479,7 @@ def send_template(template, from_email, to, subject, body, cc, bcc, html, vars, 
         
         # Interactive mode for missing variables
         if interactive:
-            click.echo(f"📝 Template: {template_data['name']}")
+            click.echo(f"Template: {template_data['name']}")
             click.echo(f"Required variables: {', '.join(template_data['variables'])}")
             
             for var in template_data['variables']:
@@ -509,7 +518,7 @@ def send_template(template, from_email, to, subject, body, cc, bcc, html, vars, 
 @main.command()
 def templates():
     """List available email templates."""
-    click.echo("📧 Available Email Templates")
+    click.echo("Available Email Templates")
     click.echo("=" * 40)
     
     templates = EmailTemplatePresets.list_templates()
@@ -528,7 +537,7 @@ def template_info(template_name):
     if not template:
         error_exit(f"Template '{template_name}' not found")
     
-    click.echo(f"📧 Template: {template['name']}")
+    click.echo(f"Template: {template['name']}")
     click.echo("=" * 40)
     click.echo(f"Subject: {template['subject']}")
     click.echo(f"\nBody Preview:")

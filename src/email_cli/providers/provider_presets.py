@@ -6,7 +6,41 @@ from typing import Dict, Any, List
 class EmailProviderPresets:
     """Pre-configured email provider settings for quick setup."""
     
-    PRESETS = {
+    DNS_PROVIDERS = {
+        'cloudflare': {
+            'name': 'Cloudflare',
+            'description': 'Cloudflare DNS API',
+            'api_required': True,
+            'features': ['full_dns_management', 'automatic_ssl', 'ddos_protection']
+        },
+        'route53': {
+            'name': 'AWS Route53',
+            'description': 'Amazon Web Services DNS',
+            'api_required': True,
+            'features': ['aws_integration', 'high_availability', 'global_infrastructure']
+        },
+        'godaddy': {
+            'name': 'GoDaddy',
+            'description': 'GoDaddy DNS API',
+            'api_required': True,
+            'features': ['domain_registrar', 'web_hosting', 'email_services']
+        },
+        'namecheap': {
+            'name': 'Namecheap',
+            'description': 'Namecheap DNS API',
+            'api_required': True,
+            'features': ['budget_friendly', 'domain_registration', 'basic_dns']
+        },
+        'custom': {
+            'name': 'Custom/Manual',
+            'description': 'Manual DNS configuration',
+            'api_required': False,
+            'features': ['manual_setup', 'any_provider']
+        }
+    }
+    
+    # Legacy presets for backward compatibility
+    LEGACY_PRESETS = {
         'gmail': {
             'name': 'Gmail',
             'smtp_server': 'smtp.gmail.com',
@@ -28,99 +62,72 @@ class EmailProviderPresets:
             'use_tls': True,
             'description': 'Microsoft Outlook/Hotmail',
             'notes': 'Works with Outlook.com, Hotmail, Live.com'
-        },
-        'yahoo': {
-            'name': 'Yahoo Mail',
-            'smtp_server': 'smtp.mail.yahoo.com',
-            'smtp_port': 587,
-            'imap_server': 'imap.mail.yahoo.com',
-            'imap_port': 993,
-            'use_ssl': True,
-            'use_tls': True,
-            'description': 'Yahoo Mail',
-            'notes': 'May require App Password for some accounts'
-        },
-        'icloud': {
-            'name': 'iCloud Mail',
-            'smtp_server': 'smtp.mail.me.com',
-            'smtp_port': 587,
-            'imap_server': 'imap.mail.me.com',
-            'imap_port': 993,
-            'use_ssl': True,
-            'use_tls': True,
-            'description': 'Apple iCloud Mail',
-            'notes': 'Requires app-specific password for 2FA'
-        },
-        'godaddy': {
-            'name': 'GoDaddy Workspace',
-            'smtp_server': 'smtpout.secureserver.net',
-            'smtp_port': 80,
-            'imap_server': 'imap.secureserver.net',
-            'imap_port': 993,
-            'use_ssl': True,
-            'use_tls': False,
-            'description': 'GoDaddy Workspace Email',
-            'notes': 'Custom domain email from GoDaddy'
-        },
-        'bluehost': {
-            'name': 'Bluehost',
-            'smtp_server': 'mail.bluehost.com',
-            'smtp_port': 587,
-            'imap_server': 'mail.bluehost.com',
-            'imap_port': 993,
-            'use_ssl': True,
-            'use_tls': True,
-            'description': 'Bluehost Email',
-            'notes': 'Replace with your actual mail server domain'
-        },
-        'siteground': {
-            'name': 'SiteGround',
-            'smtp_server': 'smtp.siteground.com',
-            'smtp_port': 465,
-            'imap_server': 'imap.siteground.com',
-            'imap_port': 993,
-            'use_ssl': True,
-            'use_tls': False,
-            'description': 'SiteGround Email',
-            'notes': 'Use your specific server assigned by SiteGround'
-        },
-        'custom': {
-            'name': 'Custom Provider',
-            'smtp_server': '',
-            'smtp_port': 587,
-            'imap_server': '',
-            'imap_port': 993,
-            'use_ssl': True,
-            'use_tls': True,
-            'description': 'Custom email provider',
-            'notes': 'Manually configure server settings'
         }
     }
     
     @classmethod
+    def get_dns_provider(cls, provider_name: str) -> Dict[str, Any]:
+        """Get DNS provider configuration."""
+        return cls.DNS_PROVIDERS.get(provider_name.lower(), cls.DNS_PROVIDERS['custom'])
+    
+    @classmethod
     def get_preset(cls, provider_name: str) -> Dict[str, Any]:
-        """Get a specific provider preset."""
-        return cls.PRESETS.get(provider_name.lower(), cls.PRESETS['custom'])
+        """Get a specific provider preset (legacy support)."""
+        return cls.LEGACY_PRESETS.get(provider_name.lower(), {})
+    
+    @classmethod
+    def list_dns_providers(cls) -> List[Dict[str, Any]]:
+        """List all available DNS providers."""
+        return [
+            {
+                'key': key,
+                **provider
+            }
+            for key, provider in cls.DNS_PROVIDERS.items()
+        ]
     
     @classmethod
     def list_presets(cls) -> List[Dict[str, Any]]:
-        """List all available presets."""
+        """List all available presets (legacy support)."""
         return [
             {
                 'key': key,
                 **preset
             }
-            for key, preset in cls.PRESETS.items()
+            for key, preset in cls.LEGACY_PRESETS.items()
         ]
     
     @classmethod
+    def get_dns_provider_names(cls) -> List[str]:
+        """Get list of DNS provider names."""
+        return list(cls.DNS_PROVIDERS.keys())
+    
+    @classmethod
     def get_preset_names(cls) -> List[str]:
-        """Get list of preset names."""
-        return list(cls.PRESETS.keys())
+        """Get list of preset names (legacy support)."""
+        return list(cls.LEGACY_PRESETS.keys())
+    
+    @classmethod
+    def generate_domain_config(cls, domain: str, mail_server: str = None) -> Dict[str, Any]:
+        """Generate domain-based email configuration."""
+        if not mail_server:
+            mail_server = f"mail.{domain}"
+        
+        return {
+            'name': f'{domain} Email',
+            'smtp_server': mail_server,
+            'smtp_port': 587,
+            'imap_server': mail_server,
+            'imap_port': 993,
+            'use_ssl': True,
+            'use_tls': True,
+            'description': f'Custom domain email for {domain}',
+            'notes': f'Uses mail server at {mail_server}'
+        }
     
     @classmethod
     def detect_provider_from_email(cls, email: str) -> str:
-        """Detect email provider from email address."""
+        """Detect email provider from email address (legacy support)."""
         domain = email.split('@')[1].lower() if '@' in email else ''
         
         # Common domain mappings
@@ -138,6 +145,40 @@ class EmailProviderPresets:
         }
         
         return domain_mappings.get(domain, 'custom')
+    
+    @classmethod
+    def get_default_dns_records(cls, domain: str, mail_server: str = None) -> Dict[str, Any]:
+        """Get default DNS records for domain-based email setup."""
+        if not mail_server:
+            mail_server = f"mail.{domain}"
+        
+        return {
+            'mx': {
+                'name': '@',
+                'value': mail_server,
+                'priority': 10
+            },
+            'a': {
+                'name': mail_server,
+                'value': '[SERVER_IP]',  # User needs to replace this
+                'ttl': 3600
+            },
+            'spf': {
+                'name': '@',
+                'value': f'v=spf1 mx include:{mail_server} ~all',
+                'type': 'TXT'
+            },
+            'dmarc': {
+                'name': '_dmarc',
+                'value': f'v=DMARC1; p=quarantine; rua=mailto:dmarc@{domain}',
+                'type': 'TXT'
+            },
+            'dkim': {
+                'name': 'default._domainkey',
+                'value': '[GENERATED_DKIM_RECORD]',  # Will be generated
+                'type': 'TXT'
+            }
+        }
 
 
 class EmailTemplatePresets:
